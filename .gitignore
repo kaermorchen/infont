@@ -1,19 +1,6 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
+node_modules
+tmp/*
+dist
 
-# compiled output
-/dist/
-/tmp/
-
-# dependencies
-/node_modules/
-
-# misc
-/.env*
-/.pnp*
-/.sass-cache
-/connect.lock
-/coverage/
-/libpeerconnection.log
-/npm-debug.log*
-/testem.log
-/yarn-error.log
+yarn-error.log
+.eslintcache
