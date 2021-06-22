@@ -1,0 +1,27 @@
+{
+  "name": "infont",
+  "version": "0.0.1",
+  "description": "Font parser",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaermorchen/infont.git"
+  },
+  "keywords": [
+    "font",
+    "typeface",
+    "opentype",
+    "truetype",
+    "parser"
+  ],
+  "author": {
+    "name": "Stanislav Romanov",
+    "email": "kaermorchen@gmail.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^6.1.3",
+    "typescript": "^4.3.4"
+  }
+}
