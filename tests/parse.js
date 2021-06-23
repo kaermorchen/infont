@@ -29,8 +29,8 @@ function readASCII(view, pos, len) {
 function readUnicode(view, pos, len) {
   let s = '';
 
-  for (let i = 0; i < len; i++) {
-    s += String.fromCharCode(view.getInt8(pos + i));
+  for (let i = 0; i < len; i += 2) {
+    s += String.fromCharCode(view.getInt16(pos + i));
   }
 
   return s;
@@ -43,8 +43,8 @@ async function loadFile(path) {
   return new Uint8Array(buff).buffer;
 }
 
-// let ab = await loadFile('./tests/fonts/roboto.ttf');
-let ab = await loadFile('./tests/fonts/wetware.otf');
+let ab = await loadFile('./tests/fonts/roboto.ttf');
+// let ab = await loadFile('./tests/fonts/wetware.otf');
 
 // const view = new DataView(ab);
 // const numTables = view.getInt16(4);
@@ -75,11 +75,8 @@ class Name {
   }
 
   parse() {
-    const format = this.view.getInt16(this.offset);
     const count = this.view.getInt16(this.offset + 2);
-    const stringOffset = this.view.getInt16(this.offset + 4);
-
-    console.log(format, count, stringOffset);
+    const tables = {};
 
     for (let i = 0, offset = this.offset + 6; i < count; i++, offset += 12) {
       let platformID = this.view.getInt16(offset);
@@ -88,43 +85,40 @@ class Name {
       let nameID = this.view.getInt16(offset + 6);
       let slen = this.view.getInt16(offset + 8);
       let noffset = this.view.getInt16(offset + 10);
-
-      console.log(platformID, encodingID, languageID.toString(16), nameID, slen, noffset);
-
-      let soff = this.offset + count * 12 + noffset;
+      let soff = this.offset + 6 + count * 12 + noffset;
       let str;
 
-      if (platformID == 0) {
-        str = readUnicode(this.view, soff, slen / 2);
-      } else if (platformID == 3 && encodingID == 0) {
-        str = readUnicode(this.view, soff, slen / 2);
+      if (platformID === 0 || (platformID === 3 && encodingID === 0)) {
+        str = readUnicode(this.view, soff, slen);
       } else if (encodingID == 0) {
         str = readASCII(this.view, soff, slen);
-      } else if (encodingID == 1) {
-        str = readUnicode(this.view, soff, slen / 2);
-      } else if (encodingID == 3) {
-        str = readUnicode(this.view, soff, slen / 2);
-      } else if (encodingID == 4) {
-        str = readUnicode(this.view, soff, slen / 2);
-      } else if (encodingID == 10) {
-        str = readUnicode(this.view, soff, slen / 2);
-      } else if (platformID == 1) {
-        str = readASCII(this.view, soff, slen);
-        console.log('reading unknown MAC encoding ' + encodingID + ' as ASCII');
       } else {
-        str = readASCII(this.view, soff, slen);
-        console.log('unknown encoding ' + encodingID + ', platformID: ' + platformID);
+        str = readUnicode(this.view, soff, slen);
       }
 
-      // let tid = 'p' + platformID + ',' + languageID.toString(16); //Typr._platforms[platformID];
+      let key = `${platformID}_${languageID}`;
 
-      // if (obj[tid] == null) {
-      //   obj[tid] = {};
-      // }
+      if (!tables[key]) {
+        tables[key] = { platformID, languageID, data: {} };
+      }
 
-      // obj[tid][names[nameID]] = str;
-      // obj[tid]['_lang'] = languageID;
-      console.log(str);
+      tables[key].data[nameID] = str;
+    }
+
+    const keys = Object.keys(tables);
+
+    if (keys.length === 1) {
+      // One table
+      return tables[keys[0]].data;
+    } else if (tables['3_1033']) {
+      // English
+      return tables['3_1033'].data;
+    } else if (tables['3_0']) {
+      // Universal
+      return tables['3_0'].data;
+    } else {
+      // Last table
+      return tables[keys.length - 1].data;
     }
   }
 }
@@ -158,6 +152,7 @@ class FontData {
       //   length: this.view.getUint32(offset + 12),
       // };
     }
+
 
     // return tables;
   }
