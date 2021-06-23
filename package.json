@@ -8,8 +8,8 @@
   "scripts": {
     "build": "NODE_ENV=production node node_modules/.bin/webpack",
     "lint": "eslint . --ext=js,ts --cache",
-    "start": "webpack-dev-server",
-    "test": "jest"
+    "test": "jest",
+    "dev": "jest --watch"
   },
   "repository": {
     "type": "git",
