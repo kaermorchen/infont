@@ -1,3 +1,3 @@
-export function parse(data: Uint8Array) {
-
+export function parse(a: number, b: number): number {
+  return a + b;
 }
