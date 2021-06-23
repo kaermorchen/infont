@@ -12,25 +12,25 @@ module.exports = () => {
 
   const plugins = [
     new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      template: './index.html',
-      excludeChunks: ['tests'],
-    }),
+    // new HtmlWebpackPlugin({
+    //   template: './index.html',
+    //   excludeChunks: ['tests'],
+    // }),
   ];
 
   // Include tests in development builds
-  if (!IS_PRODUCTION) {
-    entry.tests = glob.sync('./tests/**/*.test.js');
+  // if (!IS_PRODUCTION) {
+  //   entry.tests = glob.sync('./tests/**/*.test.js');
 
-    plugins.push(
-      new HtmlWebpackPlugin({
-        filename: 'tests/index.html',
-        template: './tests/index.html',
-        inject: 'head',
-        chunks: ['tests'],
-      })
-    );
-  }
+  //   plugins.push(
+  //     new HtmlWebpackPlugin({
+  //       filename: 'tests/index.html',
+  //       template: './tests/index.html',
+  //       inject: 'head',
+  //       chunks: ['tests'],
+  //     })
+  //   );
+  // }
 
   return {
     mode: IS_PRODUCTION ? 'production' : 'development',
@@ -42,17 +42,17 @@ module.exports = () => {
           test: /\.(js|mjs|ts|gts|gjs)$/,
           use: ['babel-loader'],
         },
-        {
-          test: /\.css$/,
-          use: ['style-loader', 'css-loader'],
-        },
-        {
-          test: /\.(png|svg|jpg|gif)$/,
-          loader: 'file-loader',
-          options: {
-            outputPath: 'images',
-          },
-        },
+        // {
+        //   test: /\.css$/,
+        //   use: ['style-loader', 'css-loader'],
+        // },
+        // {
+        //   test: /\.(png|svg|jpg|gif)$/,
+        //   loader: 'file-loader',
+        //   options: {
+        //     outputPath: 'images',
+        //   },
+        // },
       ],
     },
     resolve: {
@@ -63,8 +63,8 @@ module.exports = () => {
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/',
     },
-    devServer: {
-      contentBase: path.resolve(__dirname, 'dist'),
-    },
+    // devServer: {
+    //   contentBase: path.resolve(__dirname, 'dist'),
+    // },
   };
 };
