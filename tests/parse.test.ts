@@ -1,3 +1,4 @@
+import { test, expect } from '@jest/globals';
 import { parse } from '../src/index';
 
 test('it works', () => {
