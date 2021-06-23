@@ -5,6 +5,7 @@
   "directories": {
     "test": "tests"
   },
+  "type": "module",
   "scripts": {
     "build": "NODE_ENV=production node node_modules/.bin/webpack",
     "lint": "eslint . --ext=js,ts --cache",
@@ -17,9 +18,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.14.5",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-typescript": "^7.9.0",
     "@types/jest": "^26.0.23",
+    "@types/node": "^15.12.4",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
     "babel-jest": "^27.0.5",
@@ -106,5 +109,8 @@
   "engines": {
     "node": ">= 12.0"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@babel/runtime": "^7.14.6"
+  }
 }
