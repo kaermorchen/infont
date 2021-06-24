@@ -77,18 +77,15 @@ class FontData {
     for (let i = 0, offset = 12; i < numTables; i++, offset += 16) {
       const name = readASCII(this.view, offset, 4);
       const tableOffset = this.view.getUint32(offset + 8);
-      const length = this.view.getUint32(offset + 12);
 
-      if (name === 'name') {
-        this.name = this.parseName(tableOffset);
+      switch (name) {
+        case 'name':
+          this.name = this.parseName(tableOffset);
+          break;
+        case 'OS/2':
+          this.OS2 = this.parseOS2(tableOffset);
+          break;
       }
-
-      // tables[name] = {
-      //   name,
-      //   checkSum: this.view.getUint32(offset + 4),
-      //   offset: this.view.getUint32(offset + 8),
-      //   length: this.view.getUint32(offset + 12),
-      // };
     }
   }
 
@@ -139,8 +136,17 @@ class FontData {
       return tables[keys.length - 1].data;
     }
   }
+
+  parseOS2(tableOffset) {
+    const table = {
+      usWeightClass: this.view.getUint16(tableOffset + 2 + 2),
+      fsSelection: this.view.getUint16(tableOffset + 2 + 60),
+    };
+
+    return table;
+  }
 }
 
 const fontData = new FontData(ab);
 
-console.log(fontData.name);
+console.log(fontData.OS2);
