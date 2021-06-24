@@ -43,8 +43,8 @@ async function loadFile(path) {
   return new Uint8Array(buff).buffer;
 }
 
-let ab = await loadFile('./tests/fonts/roboto.ttf');
-// let ab = await loadFile('./tests/fonts/wetware.otf');
+// let ab = await loadFile('./tests/fonts/roboto.ttf');
+let ab = await loadFile('./tests/fonts/wetware.otf');
 
 // const view = new DataView(ab);
 // const numTables = view.getInt16(4);
@@ -61,31 +61,49 @@ let ab = await loadFile('./tests/fonts/roboto.ttf');
 //   console.log(tag, toffset, length, checkSum);
 // }
 
-class Name {
+class FontData {
   view;
-  offset;
-  length;
 
-  constructor(view, offset, length) {
-    this.view = view;
-    this.offset = offset;
-    this.length = length;
+  constructor(ab) {
+    this.view = new DataView(ab);
 
-    this.parse();
+    this.createTables();
   }
 
-  parse() {
-    const count = this.view.getInt16(this.offset + 2);
+  createTables() {
+    const numTables = this.view.getInt16(4);
+    // const tables = {};
+
+    for (let i = 0, offset = 12; i < numTables; i++, offset += 16) {
+      const name = readASCII(this.view, offset, 4);
+      const tableOffset = this.view.getUint32(offset + 8);
+      const length = this.view.getUint32(offset + 12);
+
+      if (name === 'name') {
+        this.name = this.parseName(tableOffset);
+      }
+
+      // tables[name] = {
+      //   name,
+      //   checkSum: this.view.getUint32(offset + 4),
+      //   offset: this.view.getUint32(offset + 8),
+      //   length: this.view.getUint32(offset + 12),
+      // };
+    }
+  }
+
+  parseName(tableOffset) {
+    const count = this.view.getInt16(tableOffset + 2);
     const tables = {};
 
-    for (let i = 0, offset = this.offset + 6; i < count; i++, offset += 12) {
+    for (let i = 0, offset = tableOffset + 6; i < count; i++, offset += 12) {
       let platformID = this.view.getInt16(offset);
       let encodingID = this.view.getInt16(offset + 2);
       let languageID = this.view.getInt16(offset + 4);
       let nameID = this.view.getInt16(offset + 6);
       let slen = this.view.getInt16(offset + 8);
       let noffset = this.view.getInt16(offset + 10);
-      let soff = this.offset + 6 + count * 12 + noffset;
+      let soff = tableOffset + 6 + count * 12 + noffset;
       let str;
 
       if (platformID === 0 || (platformID === 3 && encodingID === 0)) {
@@ -120,41 +138,6 @@ class Name {
       // Last table
       return tables[keys.length - 1].data;
     }
-  }
-}
-
-class FontData {
-  view;
-
-  constructor(ab) {
-    this.view = new DataView(ab);
-
-    this.createTables();
-  }
-
-  createTables() {
-    const numTables = this.view.getInt16(4);
-    // const tables = {};
-
-    for (let i = 0, offset = 12; i < numTables; i++, offset += 16) {
-      const name = readASCII(this.view, offset, 4);
-      const tableOffset = this.view.getUint32(offset + 8);
-      const length = this.view.getUint32(offset + 12);
-
-      if (name === 'name') {
-        this.name = new Name(this.view, tableOffset, length);
-      }
-
-      // tables[name] = {
-      //   name,
-      //   checkSum: this.view.getUint32(offset + 4),
-      //   offset: this.view.getUint32(offset + 8),
-      //   length: this.view.getUint32(offset + 12),
-      // };
-    }
-
-
-    // return tables;
   }
 }
 
